@@ -1,0 +1,20 @@
+export const CHAPTERS = [
+    { id: 1, title: "Healthcare & Compliance", icon: "🏥", color: "#0891b2", weight: "3%", topics: ["HIPAA", "False Claims Act", "NCCI Edits", "Medical Necessity", "ABN", "RVUs"] },
+    { id: 2, title: "Medical Terminology", icon: "📚", color: "#7c3aed", weight: "4%", topics: ["Prefixes", "Suffixes", "Root Words", "Combining Forms", "Directional Terms"] },
+    { id: 3, title: "Anatomy Review", icon: "🫀", color: "#dc2626", weight: "4%", topics: ["Body Systems", "Organs", "Anatomic Planes", "Body Cavities"] },
+    { id: 4, title: "ICD-10-CM Basics", icon: "🔍", color: "#059669", weight: "8%", topics: ["Code Structure", "Chapters", "Conventions", "7th Character"] },
+    { id: 5, title: "ICD-10-CM Guidelines", icon: "📋", color: "#ea580c", weight: "8%", topics: ["General Guidelines", "Outpatient Rules", "Z Codes", "External Causes"] },
+    { id: 6, title: "CPT Fundamentals", icon: "⚙️", color: "#0d9488", weight: "5%", topics: ["Categories", "Symbols", "Guidelines", "Index/Tabular"] },
+    { id: 7, title: "Modifiers", icon: "🔧", color: "#8b5cf6", weight: "5%", topics: ["-25", "-26", "-59", "-50", "Anatomic Modifiers"] },
+    { id: 8, title: "HCPCS Level II", icon: "💊", color: "#f97316", weight: "3%", topics: ["J-Codes", "E-Codes", "DME", "Drug Coding"] },
+    { id: 9, title: "Integumentary", icon: "🩹", color: "#ec4899", weight: "6%", topics: ["Lesion Excision", "Wound Repair", "Skin Grafts", "Breast Surgery"] },
+    { id: 10, title: "Musculoskeletal", icon: "🦴", color: "#b91c1c", weight: "8%", topics: ["Fracture Care", "Arthroscopy", "Joint Replacement", "Spine Surgery"] },
+    { id: 11, title: "Respiratory & CV", icon: "🫁", color: "#0369a1", weight: "8%", topics: ["Bronchoscopy", "Cardiac Cath", "PCI", "CABG", "Pacemakers"] },
+    { id: 12, title: "Digestive System", icon: "🫃", color: "#65a30d", weight: "8%", topics: ["EGD", "Colonoscopy", "Hernia Repair", "Cholecystectomy"] },
+    { id: 13, title: "GU & Reproductive", icon: "🫘", color: "#be185d", weight: "6%", topics: ["Cystoscopy", "Hysterectomy", "OB Global", "Maternity Coding"] },
+    { id: 14, title: "Nervous System", icon: "🧠", color: "#7c2d12", weight: "6%", topics: ["Spine Surgery", "Nerve Blocks", "Eye Surgery", "Ear Procedures"] },
+    { id: 15, title: "Anesthesia", icon: "😴", color: "#4338ca", weight: "4%", topics: ["Base Units", "Time Units", "Physical Status", "Modifiers"] },
+    { id: 16, title: "Radiology & Path", icon: "🔬", color: "#0f766e", weight: "12%", topics: ["CT/MRI", "-26/-TC", "Lab Panels", "Surgical Pathology"] },
+    { id: 17, title: "E/M Coding", icon: "🩺", color: "#9333ea", weight: "6%", topics: ["MDM", "Time-Based", "New vs Established", "Hospital E/M"] },
+    { id: 18, title: "Medicine & Exam Prep", icon: "🎯", color: "#dc2626", weight: "10%", topics: ["Injections", "Infusions", "Case Studies", "Test Strategy"] }
+];
