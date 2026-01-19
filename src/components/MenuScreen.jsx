@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { CHAPTERS } from '../data/chapters';
 import { SCENARIOS } from '../data/scenarios';
 import { BOSSES } from '../data/bosses';
@@ -7,6 +7,81 @@ import { FLASHCARD_DECKS } from '../data/flashcards';
 
 export default function MenuScreen({ stats, onSelectChapter, onSelectScenario, onSelectBoss, onSelectClaimsDay, onSelectFlashcardDeck, onSelectCalculator, onSelectModifierMatching, onSelectWordBuilder }) {
     const [activeTab, setActiveTab] = useState('chapters'); // 'chapters', 'lab', 'claims', 'boss', 'tools'
+    const tabRefs = useRef([]);
+
+    const tabs = [
+        {
+            id: 'chapters',
+            label: 'Learning Chapters',
+            icon: null,
+            bgActive: '#f8fafc',
+            bgInactive: 'rgba(255,255,255,0.05)',
+            textActive: '#0f172a',
+            textInactive: '#94a3b8',
+            border: 'none'
+        },
+        {
+            id: 'lab',
+            label: 'Coding Lab',
+            icon: '💻',
+            bgActive: '#f8fafc',
+            bgInactive: 'rgba(255,255,255,0.05)',
+            textActive: '#0f172a',
+            textInactive: '#94a3b8',
+            border: 'none'
+        },
+        {
+            id: 'claims',
+            label: 'Claims Desk',
+            icon: '📋',
+            bgActive: '#10b981',
+            bgInactive: 'rgba(255,255,255,0.05)',
+            textActive: '#ffffff',
+            textInactive: '#94a3b8',
+            borderActive: 'none',
+            borderInactive: '1px solid rgba(16, 185, 129, 0.3)'
+        },
+        {
+            id: 'boss',
+            label: 'Boss Battles',
+            icon: '⚔️',
+            bgActive: '#dc2626',
+            bgInactive: 'rgba(255,255,255,0.05)',
+            textActive: '#ffffff',
+            textInactive: '#94a3b8',
+            borderActive: 'none',
+            borderInactive: '1px solid rgba(220, 38, 38, 0.3)'
+        },
+        {
+            id: 'tools',
+            label: 'Study Tools',
+            icon: '🔧',
+            bgActive: '#8b5cf6',
+            bgInactive: 'rgba(255,255,255,0.05)',
+            textActive: '#ffffff',
+            textInactive: '#94a3b8',
+            borderActive: 'none',
+            borderInactive: '1px solid rgba(139, 92, 246, 0.3)'
+        }
+    ];
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextIndex = (index + 1) % tabs.length;
+            tabRefs.current[nextIndex]?.focus();
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prevIndex = (index - 1 + tabs.length) % tabs.length;
+            tabRefs.current[prevIndex]?.focus();
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            tabRefs.current[0]?.focus();
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            tabRefs.current[tabs.length - 1]?.focus();
+        }
+    };
 
     return (
         <div style={{ minHeight: '100vh', padding: '1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
@@ -34,83 +109,58 @@ export default function MenuScreen({ stats, onSelectChapter, onSelectScenario, o
             </header>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                <button
-                    onClick={() => setActiveTab('chapters')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '50px',
-                        background: activeTab === 'chapters' ? '#f8fafc' : 'rgba(255,255,255,0.05)',
-                        color: activeTab === 'chapters' ? '#0f172a' : '#94a3b8',
-                        fontWeight: '600'
-                    }}
-                >
-                    Learning Chapters
-                </button>
-                <button
-                    onClick={() => setActiveTab('lab')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '50px',
-                        background: activeTab === 'lab' ? '#f8fafc' : 'rgba(255,255,255,0.05)',
-                        color: activeTab === 'lab' ? '#0f172a' : '#94a3b8',
-                        fontWeight: '600',
-                        whiteSpace: 'nowrap'
-                    }}
-                >
-                    💻 Coding Lab
-                </button>
-                <button
-                    onClick={() => setActiveTab('claims')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '50px',
-                        background: activeTab === 'claims' ? '#10b981' : 'rgba(255,255,255,0.05)',
-                        color: activeTab === 'claims' ? '#ffffff' : '#94a3b8',
-                        fontWeight: '600',
-                        whiteSpace: 'nowrap',
-                        border: activeTab === 'claims' ? 'none' : '1px solid rgba(16, 185, 129, 0.3)'
-                    }}
-                >
-                    📋 Claims Desk
-                </button>
-                <button
-                    onClick={() => setActiveTab('boss')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '50px',
-                        background: activeTab === 'boss' ? '#dc2626' : 'rgba(255,255,255,0.05)',
-                        color: activeTab === 'boss' ? '#ffffff' : '#94a3b8',
-                        fontWeight: '600',
-                        whiteSpace: 'nowrap',
-                        position: 'relative',
-                        border: activeTab === 'boss' ? 'none' : '1px solid rgba(220, 38, 38, 0.3)'
-                    }}
-                >
-                    ⚔️ Boss Battles
-                </button>
-                <button
-                    onClick={() => setActiveTab('tools')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '50px',
-                        background: activeTab === 'tools' ? '#8b5cf6' : 'rgba(255,255,255,0.05)',
-                        color: activeTab === 'tools' ? '#ffffff' : '#94a3b8',
-                        fontWeight: '600',
-                        whiteSpace: 'nowrap',
-                        border: activeTab === 'tools' ? 'none' : '1px solid rgba(139, 92, 246, 0.3)'
-                    }}
-                >
-                    🔧 Study Tools
-                </button>
+            <div
+                role="tablist"
+                aria-label="Game Modes"
+                style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}
+            >
+                {tabs.map((tab, index) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                        <button
+                            key={tab.id}
+                            ref={el => tabRefs.current[index] = el}
+                            role="tab"
+                            aria-selected={isActive}
+                            aria-controls={`panel-${tab.id}`}
+                            id={`tab-${tab.id}`}
+                            tabIndex={isActive ? 0 : -1}
+                            onClick={() => setActiveTab(tab.id)}
+                            onKeyDown={(e) => handleKeyDown(e, index)}
+                            style={{
+                                padding: '0.75rem 1.5rem',
+                                borderRadius: '50px',
+                                background: isActive ? tab.bgActive : tab.bgInactive,
+                                color: isActive ? tab.textActive : tab.textInactive,
+                                fontWeight: '600',
+                                whiteSpace: 'nowrap',
+                                border: isActive ? (tab.borderActive || 'none') : (tab.borderInactive || 'none'),
+                                cursor: 'pointer',
+                                outline: 'none',
+                                transition: 'all 0.2s ease'
+                            }}
+                            className="focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] focus-visible:ring-white"
+                        >
+                            {tab.icon && <span style={{ marginRight: '0.5rem' }}>{tab.icon}</span>}
+                            {tab.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {activeTab === 'chapters' && (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                    gap: '1rem'
-                }}>
+                <div
+                    role="tabpanel"
+                    id="panel-chapters"
+                    aria-labelledby="tab-chapters"
+                    tabIndex="0"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                        gap: '1rem',
+                        outline: 'none'
+                    }}
+                >
                     {CHAPTERS.map((c, i) => {
                         const unlocked = stats.unlocked.includes(c.id);
                         const done = stats.completed.includes(c.id);
@@ -155,7 +205,18 @@ export default function MenuScreen({ stats, onSelectChapter, onSelectScenario, o
             )}
 
             {activeTab === 'lab' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
+                <div
+                    role="tabpanel"
+                    id="panel-lab"
+                    aria-labelledby="tab-lab"
+                    tabIndex="0"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+                        gap: '1.5rem',
+                        outline: 'none'
+                    }}
+                >
                     {SCENARIOS.map((s, i) => (
                         <button
                             key={s.id}
@@ -189,7 +250,13 @@ export default function MenuScreen({ stats, onSelectChapter, onSelectScenario, o
             )}
 
             {activeTab === 'claims' && (
-                <div>
+                <div
+                    role="tabpanel"
+                    id="panel-claims"
+                    aria-labelledby="tab-claims"
+                    tabIndex="0"
+                    style={{ outline: 'none' }}
+                >
                     <div style={{ marginBottom: '1.5rem', padding: '1.5rem', background: 'linear-gradient(145deg, rgba(16,185,129,0.1), rgba(6,182,212,0.1))', borderRadius: '16px', border: '1px solid rgba(16,185,129,0.2)' }}>
                         <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#10b981' }}>📋 Claims Desk</h2>
                         <p style={{ color: '#94a3b8', lineHeight: '1.5' }}>
@@ -296,7 +363,18 @@ export default function MenuScreen({ stats, onSelectChapter, onSelectScenario, o
             )}
 
             {activeTab === 'boss' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '1.5rem' }}>
+                <div
+                    role="tabpanel"
+                    id="panel-boss"
+                    aria-labelledby="tab-boss"
+                    tabIndex="0"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+                        gap: '1.5rem',
+                        outline: 'none'
+                    }}
+                >
                     {BOSSES.map((b, i) => {
                         // Demo unlock logic: unlock if chapter 1 is complete
                         const demoUnlocked = stats.completed.length >= 1;
@@ -337,7 +415,13 @@ export default function MenuScreen({ stats, onSelectChapter, onSelectScenario, o
 
             {/* Flashcards & Tools Tab */}
             {activeTab === 'tools' && (
-                <div>
+                <div
+                    role="tabpanel"
+                    id="panel-tools"
+                    aria-labelledby="tab-tools"
+                    tabIndex="0"
+                    style={{ outline: 'none' }}
+                >
                     <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
                         <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: '#a78bfa' }}>🔧 Study Tools</h2>
                         <p style={{ color: '#94a3b8' }}>Tools to help you memorize codes and calculate E/M levels.</p>
@@ -475,4 +559,3 @@ export default function MenuScreen({ stats, onSelectChapter, onSelectScenario, o
         </div>
     );
 }
-
