@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
 import TitleScreen from './components/TitleScreen';
@@ -13,6 +13,14 @@ import { SCENARIOS } from './data/scenarios';
 import { BOSSES } from './data/bosses';
 import { DAILY_RULES } from './data/claims';
 import { FLASHCARD_DECKS } from './data/flashcards';
+
+// Stable constant for modifier matching chapter config
+const MODIFIER_MATCHING_CHAPTER = {
+  id: 'modifierMatching',
+  title: 'Modifier Matching',
+  icon: '💼',
+  color: '#ef4444'
+};
 
 function App() {
   const [screen, setScreen] = useState('title'); // title, menu, game, complete, flashcard, calculator, wordBuilder
@@ -101,24 +109,25 @@ function App() {
     setScreen('wordBuilder');
   };
 
-  const handleChapterComplete = () => {
+  // Memoize handlers passed to GameScreen
+  const handleChapterComplete = useCallback(() => {
     if (activeChapterId) {
       completeChapter(activeChapterId, CHAPTERS.length);
     }
     setScreen('complete');
-  };
+  }, [activeChapterId, completeChapter]);
 
-  const handleScenarioComplete = () => {
+  const handleScenarioComplete = useCallback(() => {
     addXp(150);
     setScreen('menu');
-  };
+  }, [addXp]);
 
-  const handleBossComplete = () => {
+  const handleBossComplete = useCallback(() => {
     addXp(500);
     setScreen('menu');
-  };
+  }, [addXp]);
 
-  const handleClaimsDayComplete = () => {
+  const handleClaimsDayComplete = useCallback(() => {
     // Explicit null check for Day 0 support (0 is falsy but valid)
     if (activeClaimsDayId !== null) {
       const dayConfig = DAILY_RULES.find(d => d.day === activeClaimsDayId);
@@ -128,7 +137,11 @@ function App() {
       }
     }
     setScreen('menu');
-  };
+  }, [activeClaimsDayId, addXp, completeClaimsDay]);
+
+  const handleMenu = useCallback(() => {
+    setScreen('menu');
+  }, []);
 
   const handleNextChapter = () => {
     if (activeChapterId) {
@@ -145,7 +158,7 @@ function App() {
   };
 
   // Determine what object to pass to GameScreen
-  const activeContent = activeChapterId
+  const activeContent = useMemo(() => activeChapterId
     ? CHAPTERS.find(c => c.id === activeChapterId)
     : activeScenarioId
       ? { ...SCENARIOS.find(s => s.id === activeScenarioId), icon: '💻', color: '#3b82f6' }
@@ -153,11 +166,22 @@ function App() {
         ? BOSSES.find(b => b.id === activeBossId)
         : activeClaimsDayId !== null
           ? { day: activeClaimsDayId, ...DAILY_RULES.find(d => d.day === activeClaimsDayId), icon: '📋', color: '#10b981' }
-          : null;
+          : null, [activeChapterId, activeScenarioId, activeBossId, activeClaimsDayId]);
 
-  const activeDeck = activeFlashcardDeckId
+  const activeDeck = useMemo(() => activeFlashcardDeckId
     ? FLASHCARD_DECKS.find(d => d.id === activeFlashcardDeckId)
-    : null;
+    : null, [activeFlashcardDeckId]);
+
+  // Determine correct onComplete handler
+  const onCompleteHandler = useMemo(() => {
+    if (activeChapterId) return handleChapterComplete;
+    if (activeBossId) return handleBossComplete;
+    if (activeClaimsDayId !== null) return handleClaimsDayComplete;
+    return handleScenarioComplete;
+  }, [activeChapterId, activeBossId, activeClaimsDayId, handleChapterComplete, handleBossComplete, handleClaimsDayComplete, handleScenarioComplete]);
+
+  // Calculate initial mode for GameScreen key generation
+  const initialMode = activeScenarioId ? 'scenario' : activeBossId ? 'boss' : activeClaimsDayId !== null ? 'claims' : 'lesson';
 
   return (
     <>
@@ -181,10 +205,11 @@ function App() {
 
       {screen === 'game' && activeChapterId === 'modifierMatching' && (
         <GameScreen
-          chapter={{ id: 'modifierMatching', title: 'Modifier Matching', icon: '💼', color: '#ef4444' }}
+          key="modifierMatching"
+          chapter={MODIFIER_MATCHING_CHAPTER}
           initialMode="modifierMatching"
-          onMenu={() => setScreen('menu')}
-          onComplete={() => setScreen('menu')}
+          onMenu={handleMenu}
+          onComplete={handleMenu}
           onXpGain={addXp}
           onAnswerRecord={recordAnswer}
         />
@@ -192,10 +217,11 @@ function App() {
 
       {screen === 'game' && activeContent && (
         <GameScreen
+          key={`${activeContent.id ?? activeContent.day}-${initialMode}`}
           chapter={activeContent} // Acts as the config object
-          initialMode={activeScenarioId ? 'scenario' : activeBossId ? 'boss' : activeClaimsDayId !== null ? 'claims' : 'lesson'}
-          onMenu={() => setScreen('menu')}
-          onComplete={activeChapterId ? handleChapterComplete : activeBossId ? handleBossComplete : activeClaimsDayId !== null ? handleClaimsDayComplete : handleScenarioComplete}
+          initialMode={initialMode}
+          onMenu={handleMenu}
+          onComplete={onCompleteHandler}
           onXpGain={addXp}
           onAnswerRecord={recordAnswer}
         />
@@ -205,7 +231,7 @@ function App() {
         <CompleteScreen
           chapter={activeContent}
           stats={stats}
-          onMenu={() => setScreen('menu')}
+          onMenu={handleMenu}
           onNext={handleNextChapter}
         />
       )}
@@ -213,20 +239,20 @@ function App() {
       {screen === 'flashcard' && activeDeck && (
         <FlashcardView
           deck={activeDeck}
-          onMenu={() => setScreen('menu')}
+          onMenu={handleMenu}
         />
       )}
 
       {screen === 'calculator' && (
         <EMCalculatorView
-          onMenu={() => setScreen('menu')}
+          onMenu={handleMenu}
         />
       )}
 
       {screen === 'wordBuilder' && (
         <WordBuilderView
-          onMenu={() => setScreen('menu')}
-          onComplete={() => setScreen('menu')}
+          onMenu={handleMenu}
+          onComplete={handleMenu}
           onXpGain={addXp}
         />
       )}

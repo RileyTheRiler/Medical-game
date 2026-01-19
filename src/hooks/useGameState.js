@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const STORAGE_KEY = 'coderx-cpc-v2';
 
@@ -31,19 +31,19 @@ export function useGameState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
     }, [stats]);
 
-    const addXp = (amount) => {
+    const addXp = useCallback((amount) => {
         setStats(prev => ({ ...prev, xp: prev.xp + amount }));
-    };
+    }, []);
 
-    const recordAnswer = (isCorrect) => {
+    const recordAnswer = useCallback((isCorrect) => {
         setStats(prev => ({
             ...prev,
             correct: prev.correct + (isCorrect ? 1 : 0),
             total: prev.total + 1
         }));
-    };
+    }, []);
 
-    const completeChapter = (chapterId, totalChapters) => {
+    const completeChapter = useCallback((chapterId, totalChapters) => {
         setStats(prev => {
             const newCompleted = prev.completed.includes(chapterId)
                 ? prev.completed
@@ -61,9 +61,9 @@ export function useGameState() {
                 unlocked: newUnlocked
             };
         });
-    };
+    }, []);
 
-    const completeClaimsDay = (day) => {
+    const completeClaimsDay = useCallback((day) => {
         setStats(prev => {
             if (prev.claimsDaysCompleted.includes(day)) {
                 return prev;
@@ -73,7 +73,7 @@ export function useGameState() {
                 claimsDaysCompleted: [...prev.claimsDaysCompleted, day]
             };
         });
-    };
+    }, []);
 
     return {
         stats,
@@ -83,4 +83,3 @@ export function useGameState() {
         completeClaimsDay
     };
 }
-
