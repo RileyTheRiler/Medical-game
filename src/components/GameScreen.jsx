@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import LessonView from './LessonView';
 import QuizView from './QuizView';
 import ScenarioView from './ScenarioView';
@@ -7,20 +7,11 @@ import ClaimsDeskView from './ClaimsDeskView';
 import ModifierMatchingView from './ModifierMatchingView';
 import { LESSONS } from '../data/lessons';
 import { QUIZ_DATA } from '../data/quizzes';
-import { SCENARIOS } from '../data/scenarios';
 import { DAILY_RULES, getClaimsForDay } from '../data/claims';
 
-export default function GameScreen({ chapter, initialMode = 'lesson', onMenu, onComplete, onXpGain, onAnswerRecord }) {
+function GameScreen({ chapter, initialMode = 'lesson', onMenu, onComplete, onXpGain, onAnswerRecord }) {
     const [mode, setMode] = useState(initialMode); // 'lesson', 'quiz', 'scenario'
-    const [activeScenario, setActiveScenario] = useState(null);
-
-    // Reset mode when chapter changes OR initialMode changes
-    // Use chapter.id for regular chapters, chapter.day for claims
-    const chapterKey = chapter?.id ?? chapter?.day ?? 'unknown';
-    useEffect(() => {
-        setMode(initialMode);
-        setActiveScenario(null);
-    }, [chapterKey, initialMode]);
+    // State reset is now handled by React key prop in parent component (App.jsx)
 
     const lesson = initialMode === 'scenario' || initialMode === 'boss' || initialMode === 'claims' ? null : (chapter?.id ? LESSONS[chapter.id] : null);
     const quizzes = initialMode === 'scenario' || initialMode === 'boss' || initialMode === 'claims' ? null : (chapter?.id ? QUIZ_DATA[chapter.id] : null);
@@ -28,19 +19,6 @@ export default function GameScreen({ chapter, initialMode = 'lesson', onMenu, on
     // Get claims data if in claims mode
     const claimsDayConfig = initialMode === 'claims' && chapter?.day !== undefined ? DAILY_RULES.find(d => d.day === chapter.day) : null;
     const claimsForDay = initialMode === 'claims' && chapter?.day !== undefined ? getClaimsForDay(chapter.day) : [];
-
-    // Helper to find scenarios relevant to this chapter (if any)
-    // For now, we'll manually map Chapter 9 (Integumentary) to Scenario 1, etc.
-    // Or purely menu driven. Let's make it menu driven for "Coding Lab" mode, 
-    // but if we are in "Scenario Mode" passed from App, handle it.
-
-    // Actually, wait. "Coding Lab" is a top-level feature alongside "Chapters".
-    // So GameScreen needs to handle "Scenario Mode" specifically if 'chapter' is actually a scenario object?
-    // OR we distinguish based on props.
-    // Let's refactor: GameScreen takes 'context' which can be a chapter OR a scenario.
-
-    // Simplification: logic below handles standard chapter flow. If we want scenarios, we need to handle "Scenario Mode" in App.jsx separately or integrate here.
-    // Let's integrate here for smoother UI reuse.
 
     const handleQuizAnswer = (isCorrect) => {
         const xp = isCorrect ? 30 : 5;
@@ -182,3 +160,5 @@ export default function GameScreen({ chapter, initialMode = 'lesson', onMenu, on
         </div>
     );
 }
+
+export default React.memo(GameScreen);
