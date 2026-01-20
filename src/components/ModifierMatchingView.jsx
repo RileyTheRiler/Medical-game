@@ -296,6 +296,8 @@ export default function ModifierMatchingView({ onComplete, onMenu }) {
                 }}>
                     <button
                         onClick={() => handleSwipe(false)}
+                        aria-label="No modifier required"
+                        title="Swipe Left: No modifier required"
                         style={{
                             width: '80px',
                             height: '80px',
@@ -308,10 +310,12 @@ export default function ModifierMatchingView({ onComplete, onMenu }) {
                             boxShadow: '0 4px 15px rgba(239,68,68,0.4)'
                         }}
                     >
-                        ✗
+                        <span aria-hidden="true">✗</span>
                     </button>
                     <button
                         onClick={() => handleSwipe(true)}
+                        aria-label="Modifier -25 required"
+                        title="Swipe Right: Modifier -25 required"
                         style={{
                             width: '80px',
                             height: '80px',
@@ -324,7 +328,7 @@ export default function ModifierMatchingView({ onComplete, onMenu }) {
                             boxShadow: '0 4px 15px rgba(74,222,128,0.4)'
                         }}
                     >
-                        ✓
+                        <span aria-hidden="true">✓</span>
                     </button>
                 </div>
             )}
