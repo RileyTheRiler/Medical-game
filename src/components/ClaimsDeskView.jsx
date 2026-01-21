@@ -656,6 +656,7 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
             {/* OLD CARTS Helper Toggle */}
             <button
                 onClick={() => setShowOldCarts(!showOldCarts)}
+                aria-pressed={showOldCarts}
                 style={{
                     position: 'absolute',
                     top: '10px',
@@ -771,6 +772,7 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                     {/* Hints Toggle */}
                     <button
                         onClick={() => setHintsEnabled(!hintsEnabled)}
+                aria-pressed={hintsEnabled}
                         style={{
                             padding: '0.4rem 0.8rem',
                             background: hintsEnabled ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.1)',
@@ -961,6 +963,8 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                     }}>
                         <button
                             onClick={() => setShowRules(!showRules)}
+                            aria-expanded={showRules}
+                            aria-controls="rules-content"
                             style={{
                                 width: '100%',
                                 padding: '0.75rem 1rem',
@@ -975,14 +979,17 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                             }}
                         >
                             <span>📖 {isOrientation ? 'Training Tips' : `Day ${dayConfig.day} Rules`}</span>
-                            <span>{showRules ? '▼' : '▶'}</span>
+                            <span aria-hidden="true">{showRules ? '▼' : '▶'}</span>
                         </button>
                         {showRules && (
-                            <div style={{
-                                padding: '0 1rem 1rem',
-                                fontSize: '0.85rem',
-                                color: '#94a3b8'
-                            }}>
+                            <div
+                                id="rules-content"
+                                style={{
+                                    padding: '0 1rem 1rem',
+                                    fontSize: '0.85rem',
+                                    color: '#94a3b8'
+                                }}
+                            >
                                 <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
                                     {dayConfig.rules.map((rule, i) => (
                                         <li key={i} style={{ marginBottom: '0.25rem' }}>{rule}</li>
@@ -1175,6 +1182,7 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                     </div>
                     <button
                         onClick={() => setShowReminder(null)}
+                        aria-label="Close reminder"
                         style={{
                             background: 'rgba(255,255,255,0.1)',
                             border: 'none',
