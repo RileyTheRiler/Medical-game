@@ -17,6 +17,20 @@ export default function FlashcardView({ deck, onMenu }) {
         localStorage.setItem(`flashcards_${deck.id}`, JSON.stringify(learnedCards));
     }, [learnedCards, deck.id]);
 
+    const handleNext = () => {
+        setIsFlipped(false);
+        setTimeout(() => {
+            setCurrentIndex(prev => (prev + 1) % deck.cards.length);
+        }, 150);
+    };
+
+    const handlePrev = () => {
+        setIsFlipped(false);
+        setTimeout(() => {
+            setCurrentIndex(prev => (prev - 1 + deck.cards.length) % deck.cards.length);
+        }, 150);
+    };
+
     // Keyboard navigation
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -31,20 +45,6 @@ export default function FlashcardView({ deck, onMenu }) {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [currentIndex]);
-
-    const handleNext = () => {
-        setIsFlipped(false);
-        setTimeout(() => {
-            setCurrentIndex(prev => (prev + 1) % deck.cards.length);
-        }, 150);
-    };
-
-    const handlePrev = () => {
-        setIsFlipped(false);
-        setTimeout(() => {
-            setCurrentIndex(prev => (prev - 1 + deck.cards.length) % deck.cards.length);
-        }, 150);
-    };
 
     const toggleLearned = (e) => {
         e.stopPropagation();
