@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CHARACTERS, getRandomDialogue, getCharacterBySpecialty, formatReminder, POP_QUIZ_QUESTIONS, getDayIntro, getOldCartsMnemonic } from '../data/characters.js';
 import { getStoryEvent } from '../data/storyEvents.js';
 import useMistakeMemory from '../hooks/useMistakeMemory.js';
 
-export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }) {
+export default function ClaimsDeskView({ dayConfig, claims, onComplete }) {
     const [currentClaimIndex, setCurrentClaimIndex] = useState(0);
     const [timeRemaining, setTimeRemaining] = useState(dayConfig.shiftTime || 0);
     const [results, setResults] = useState([]);
@@ -16,7 +16,6 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
 
     // Narrative system state
     const [showStoryEvent, setShowStoryEvent] = useState(null);
-    const [currentDialogue, setCurrentDialogue] = useState(null);
     const [showReminder, setShowReminder] = useState(null);
     const mistakeMemory = useMistakeMemory();
 
@@ -117,7 +116,8 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                 claimId: currentClaim.id,
                 type: mistakeType,
                 code: currentClaim.cptCode,
-                time: Date.now()
+                time: Date.now(),
+                rotation: (Math.random() - 0.5) * 6
             }]);
 
             // Get escalating story event based on mistake count
@@ -176,8 +176,6 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
             // Maybe show a pop quiz before next claim
             if (!maybeShowPopQuiz()) {
                 setCurrentClaimIndex(prev => prev + 1);
-                // Check for reminder on next claim
-                checkForReminder(claims[currentClaimIndex + 1]);
             }
         } else {
             setIsShiftComplete(true);
@@ -194,7 +192,6 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
         setShowPopQuiz(null);
         setPopQuizAnswer(null);
         setCurrentClaimIndex(prev => prev + 1);
-        checkForReminder(claims[currentClaimIndex + 1]);
     };
 
     // Close story event and show regular feedback
@@ -229,12 +226,13 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
         }
     }, [mistakeMemory]);
 
-    // Check for reminder on initial load
+    // Check for reminder on claim change
     useEffect(() => {
         if (currentClaim && dayConfig.day > 0) {
-            checkForReminder(currentClaim);
+            const timer = setTimeout(() => checkForReminder(currentClaim), 0);
+            return () => clearTimeout(timer);
         }
-    }, []);
+    }, [currentClaim, dayConfig.day, checkForReminder]);
 
     // Calculate final stats
     const correctCount = results.filter(r => r.correct).length;
@@ -465,7 +463,7 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                                         borderRadius: '6px',
                                         fontSize: '0.8rem',
                                         color: '#fca5a5',
-                                        transform: `rotate(${(Math.random() - 0.5) * 6}deg)`,
+                                        transform: `rotate(${item.rotation}deg)`,
                                         animation: 'bounceIn 0.3s ease-out'
                                     }}>
                                         📄 {item.code || 'Claim'} - {item.type.replace(/_/g, ' ')}
@@ -1049,18 +1047,23 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
 
             {/* Story Event Overlay - Absurd consequences for mistakes */}
             {showStoryEvent && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.85)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1001
-                }}>
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="story-event-title"
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.85)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1001
+                    }}
+                >
                     <div style={{
                         background: 'linear-gradient(145deg, rgba(30,27,50,0.98), rgba(15,10,30,1))',
                         borderRadius: '24px',
@@ -1076,19 +1079,22 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                             fontSize: '4rem',
                             marginBottom: '1rem',
                             animation: 'bounceIn 0.5s ease-out'
-                        }}>
+                        }} aria-hidden="true">
                             {CHARACTERS[showStoryEvent.character]?.avatar || '❌'}
                         </div>
 
                         {/* Event Title */}
-                        <h3 style={{
-                            fontSize: '1.4rem',
-                            color: CHARACTERS[showStoryEvent.character]?.color || '#ef4444',
-                            marginBottom: '1rem',
-                            fontWeight: 'bold',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.1em'
-                        }}>
+                        <h3
+                            id="story-event-title"
+                            style={{
+                                fontSize: '1.4rem',
+                                color: CHARACTERS[showStoryEvent.character]?.color || '#ef4444',
+                                marginBottom: '1rem',
+                                fontWeight: 'bold',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em'
+                            }}
+                        >
                             {showStoryEvent.title}
                         </h3>
 
@@ -1119,6 +1125,7 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
 
                         <button
                             onClick={handleStoryEventContinue}
+                            autoFocus
                             style={{
                                 padding: '0.875rem 2.5rem',
                                 background: `linear-gradient(135deg, ${CHARACTERS[showStoryEvent.character]?.color || '#ef4444'}, ${CHARACTERS[showStoryEvent.character]?.color || '#ef4444'}cc)`,
@@ -1193,18 +1200,23 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
 
             {/* Feedback Overlay */}
             {showFeedback && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.7)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }}>
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="feedback-title"
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0,0,0,0.7)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
+                    }}
+                >
                     <div style={{
                         background: 'rgba(30,27,50,0.95)',
                         borderRadius: '20px',
@@ -1217,14 +1229,17 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                         <div style={{
                             fontSize: '3rem',
                             marginBottom: '1rem'
-                        }}>
+                        }} aria-hidden="true">
                             {showFeedback.correct ? '✓' : '✗'}
                         </div>
-                        <h3 style={{
-                            fontSize: '1.5rem',
-                            color: showFeedback.correct ? '#4ade80' : '#ef4444',
-                            marginBottom: '1rem'
-                        }}>
+                        <h3
+                            id="feedback-title"
+                            style={{
+                                fontSize: '1.5rem',
+                                color: showFeedback.correct ? '#4ade80' : '#ef4444',
+                                marginBottom: '1rem'
+                            }}
+                        >
                             {showFeedback.correct ? 'Correct!' : 'Incorrect'}
                         </h3>
                         {!showFeedback.correct && (
@@ -1237,6 +1252,7 @@ export default function ClaimsDeskView({ dayConfig, claims, onComplete, onMenu }
                         </p>
                         <button
                             onClick={handleNextClaim}
+                            autoFocus
                             style={{
                                 padding: '0.75rem 2rem',
                                 background: showFeedback.correct ? '#4ade80' : '#ef4444',
