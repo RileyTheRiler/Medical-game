@@ -448,7 +448,7 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                     <DropdownButton type="suffix" value={selectedSuffix} options={WORD_PARTS.suffixes} color="#8b5cf6" />
                 </div>
                 {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', border: `1px solid ${feedback.type === 'correct' ? '#22c55e' : '#ef4444'}` }}>
+                    <div role="alert" aria-live="polite" style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', border: `1px solid ${feedback.type === 'correct' ? '#22c55e' : '#ef4444'}` }}>
                         <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
                         <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
                     </div>
@@ -557,7 +557,7 @@ function HangmanMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                     </div>
                 )}
                 {gameState !== 'playing' && (
-                    <div style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', background: gameState === 'won' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
+                    <div role="alert" aria-live="polite" style={{ textAlign: 'center', padding: '1rem', borderRadius: '12px', background: gameState === 'won' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
                         <span style={{ fontSize: '2rem' }}>{gameState === 'won' ? '🎉' : '💔'}</span>
                         <p style={{ color: gameState === 'won' ? '#4ade80' : '#fca5a5', marginTop: '0.5rem' }}>
                             {gameState === 'won' ? 'Correct!' : `The answer was: ${currentTerm.builtTerm}`}
@@ -629,6 +629,8 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                     <input
                         type="text"
                         value={userInput}
+                        maxLength={50}
+                        aria-label={`Enter the missing ${blankType}`}
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder={`Enter the ${blankType}...`}
@@ -646,7 +648,7 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                     />
                 </div>
                 {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
+                    <div role="alert" aria-live="polite" style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
                         <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
                         <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
                     </div>
@@ -727,6 +729,8 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                     <input
                         type="text"
                         value={userInput}
+                        maxLength={50}
+                        aria-label="Unscramble the medical term"
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder="Type the medical term..."
@@ -744,7 +748,7 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                     />
                 </div>
                 {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
+                    <div role="alert" aria-live="polite" style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
                         <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
                         <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
                     </div>
@@ -920,6 +924,8 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
                                 ref={inputRef}
                                 type="text"
                                 value={userInput}
+                                maxLength={50}
+                                aria-label="Type the medical term fast"
                                 onChange={(e) => setUserInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                 placeholder="Type fast!"
@@ -1078,6 +1084,8 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                                 <input
                                     type="text"
                                     value={userInput}
+                                    maxLength={50}
+                                    aria-label="Answer in question form"
                                     onChange={(e) => setUserInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                     placeholder='What is...?'
@@ -1109,7 +1117,7 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                         )}
 
                         {feedback && (
-                            <div style={{
+                            <div role="alert" aria-live="polite" style={{
                                 padding: '1.5rem',
                                 borderRadius: '12px',
                                 background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
