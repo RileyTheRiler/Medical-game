@@ -633,6 +633,8 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder={`Enter the ${blankType}...`}
                         disabled={!!feedback}
+                        maxLength={50}
+                        aria-label={`Enter the ${blankType}`}
                         style={{
                             background: 'rgba(255,255,255,0.1)',
                             border: '2px solid #0d9488',
@@ -731,6 +733,8 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder="Type the medical term..."
                         disabled={!!feedback}
+                        maxLength={50}
+                        aria-label="Unscrambled medical term"
                         style={{
                             background: 'rgba(255,255,255,0.1)',
                             border: '2px solid #0d9488',
@@ -923,6 +927,8 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
                                 onChange={(e) => setUserInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                 placeholder="Type fast!"
+                                maxLength={50}
+                                aria-label="Medical term for definition"
                                 style={{
                                     background: 'rgba(255,255,255,0.1)',
                                     border: '2px solid #f97316',
@@ -1082,6 +1088,8 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                     placeholder='What is...?'
                                     autoFocus
+                                    maxLength={50}
+                                    aria-label="Jeopardy answer"
                                     style={{
                                         background: 'rgba(255,255,255,0.1)',
                                         border: '2px solid #1e40af',
