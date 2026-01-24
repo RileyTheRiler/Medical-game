@@ -1,13 +1,16 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, Suspense, lazy } from 'react';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
 import TitleScreen from './components/TitleScreen';
-import MenuScreen from './components/MenuScreen';
-import GameScreen from './components/GameScreen';
-import CompleteScreen from './components/CompleteScreen';
-import FlashcardView from './components/FlashcardView';
-import EMCalculatorView from './components/EMCalculatorView';
-import WordBuilderView from './components/WordBuilderView';
+
+// Optimization: Lazy load heavy screens to split code and reduce initial bundle size.
+// TitleScreen is kept as a static import to ensure fast LCP (Largest Contentful Paint).
+const MenuScreen = lazy(() => import('./components/MenuScreen'));
+const GameScreen = lazy(() => import('./components/GameScreen'));
+const CompleteScreen = lazy(() => import('./components/CompleteScreen'));
+const FlashcardView = lazy(() => import('./components/FlashcardView'));
+const EMCalculatorView = lazy(() => import('./components/EMCalculatorView'));
+const WordBuilderView = lazy(() => import('./components/WordBuilderView'));
 import { CHAPTERS } from './data/chapters';
 import { SCENARIOS } from './data/scenarios';
 import { BOSSES } from './data/bosses';
@@ -189,73 +192,87 @@ function App() {
         <TitleScreen onStart={handleStart} stats={stats} />
       )}
 
-      {screen === 'menu' && (
-        <MenuScreen
-          stats={stats}
-          onSelectChapter={handleChapterSelect}
-          onSelectScenario={handleScenarioSelect}
-          onSelectBoss={handleBossSelect}
-          onSelectClaimsDay={handleClaimsDaySelect}
-          onSelectFlashcardDeck={handleFlashcardDeckSelect}
-          onSelectCalculator={handleCalculatorSelect}
-          onSelectModifierMatching={handleModifierMatchingSelect}
-          onSelectWordBuilder={handleWordBuilderSelect}
-        />
-      )}
+      <Suspense fallback={
+        <div style={{
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--accent-secondary)',
+          fontSize: '1.5rem',
+          fontWeight: 'bold'
+        }}>
+          Loading...
+        </div>
+      }>
+        {screen === 'menu' && (
+          <MenuScreen
+            stats={stats}
+            onSelectChapter={handleChapterSelect}
+            onSelectScenario={handleScenarioSelect}
+            onSelectBoss={handleBossSelect}
+            onSelectClaimsDay={handleClaimsDaySelect}
+            onSelectFlashcardDeck={handleFlashcardDeckSelect}
+            onSelectCalculator={handleCalculatorSelect}
+            onSelectModifierMatching={handleModifierMatchingSelect}
+            onSelectWordBuilder={handleWordBuilderSelect}
+          />
+        )}
 
-      {screen === 'game' && activeChapterId === 'modifierMatching' && (
-        <GameScreen
-          key="modifierMatching"
-          chapter={MODIFIER_MATCHING_CHAPTER}
-          initialMode="modifierMatching"
-          onMenu={handleMenu}
-          onComplete={handleMenu}
-          onXpGain={addXp}
-          onAnswerRecord={recordAnswer}
-        />
-      )}
+        {screen === 'game' && activeChapterId === 'modifierMatching' && (
+          <GameScreen
+            key="modifierMatching"
+            chapter={MODIFIER_MATCHING_CHAPTER}
+            initialMode="modifierMatching"
+            onMenu={handleMenu}
+            onComplete={handleMenu}
+            onXpGain={addXp}
+            onAnswerRecord={recordAnswer}
+          />
+        )}
 
-      {screen === 'game' && activeContent && (
-        <GameScreen
-          key={`${activeContent.id ?? activeContent.day}-${initialMode}`}
-          chapter={activeContent} // Acts as the config object
-          initialMode={initialMode}
-          onMenu={handleMenu}
-          onComplete={onCompleteHandler}
-          onXpGain={addXp}
-          onAnswerRecord={recordAnswer}
-        />
-      )}
+        {screen === 'game' && activeContent && (
+          <GameScreen
+            key={`${activeContent.id ?? activeContent.day}-${initialMode}`}
+            chapter={activeContent} // Acts as the config object
+            initialMode={initialMode}
+            onMenu={handleMenu}
+            onComplete={onCompleteHandler}
+            onXpGain={addXp}
+            onAnswerRecord={recordAnswer}
+          />
+        )}
 
-      {screen === 'complete' && activeContent && (
-        <CompleteScreen
-          chapter={activeContent}
-          stats={stats}
-          onMenu={handleMenu}
-          onNext={handleNextChapter}
-        />
-      )}
+        {screen === 'complete' && activeContent && (
+          <CompleteScreen
+            chapter={activeContent}
+            stats={stats}
+            onMenu={handleMenu}
+            onNext={handleNextChapter}
+          />
+        )}
 
-      {screen === 'flashcard' && activeDeck && (
-        <FlashcardView
-          deck={activeDeck}
-          onMenu={handleMenu}
-        />
-      )}
+        {screen === 'flashcard' && activeDeck && (
+          <FlashcardView
+            deck={activeDeck}
+            onMenu={handleMenu}
+          />
+        )}
 
-      {screen === 'calculator' && (
-        <EMCalculatorView
-          onMenu={handleMenu}
-        />
-      )}
+        {screen === 'calculator' && (
+          <EMCalculatorView
+            onMenu={handleMenu}
+          />
+        )}
 
-      {screen === 'wordBuilder' && (
-        <WordBuilderView
-          onMenu={handleMenu}
-          onComplete={handleMenu}
-          onXpGain={addXp}
-        />
-      )}
+        {screen === 'wordBuilder' && (
+          <WordBuilderView
+            onMenu={handleMenu}
+            onComplete={handleMenu}
+            onXpGain={addXp}
+          />
+        )}
+      </Suspense>
     </>
   );
 }
