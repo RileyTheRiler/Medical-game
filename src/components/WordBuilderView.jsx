@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { WORD_PARTS, WORD_BUILDER_TERMS, getRandomTerms, getCategories, combineWordParts } from '../data/wordBuilder';
+import { WORD_PARTS, WORD_BUILDER_TERMS, getRandomTerms, combineWordParts } from '../data/wordBuilder';
 
 // Game mode constants
 const GAME_MODES = [
@@ -12,7 +12,7 @@ const GAME_MODES = [
     { id: 'jeopardy', name: 'Jeopardy', icon: '🎮', description: 'Answer in question form' },
 ];
 
-export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
+export default function WordBuilderView({ onMenu, onXpGain }) {
     const [gameMode, setGameMode] = useState(null); // null = mode selection screen
     const [terms, setTerms] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -20,27 +20,21 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
     const [isComplete, setIsComplete] = useState(false);
     const [feedback, setFeedback] = useState(null);
 
-    // Initialize terms when game mode is selected
-    useEffect(() => {
-        if (gameMode) {
-            if (gameMode === 'jeopardy') {
-                // Jeopardy uses all terms organized by category
-                setTerms(WORD_BUILDER_TERMS);
-            } else if (gameMode === 'match') {
-                // Match mode uses fewer terms
-                setTerms(getRandomTerms(6));
-            } else {
-                setTerms(getRandomTerms(10));
-            }
-            setCurrentIndex(0);
-            setScore({ correct: 0, total: 0 });
-            setIsComplete(false);
-            setFeedback(null);
-        }
-    }, [gameMode]);
-
     const handleModeSelect = (mode) => {
         setGameMode(mode);
+        if (mode === 'jeopardy') {
+            // Jeopardy uses all terms organized by category
+            setTerms(WORD_BUILDER_TERMS);
+        } else if (mode === 'match') {
+            // Match mode uses fewer terms
+            setTerms(getRandomTerms(6));
+        } else {
+            setTerms(getRandomTerms(10));
+        }
+        setCurrentIndex(0);
+        setScore({ correct: 0, total: 0 });
+        setIsComplete(false);
+        setFeedback(null);
     };
 
     const handleBackToModes = () => {
@@ -243,11 +237,12 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
     // BUILDER MODE
     if (gameMode === 'builder') {
         return <BuilderMode
+            key={currentIndex}
             currentTerm={currentTerm}
             onCorrect={handleCorrectAnswer}
             onIncorrect={handleIncorrectAnswer}
             onNext={handleNextQuestion}
-            GameHeader={GameHeader}
+            Header={GameHeader}
             ProgressBar={ProgressBar}
             ScoreDisplay={ScoreDisplay}
             feedback={feedback}
@@ -259,11 +254,12 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
     // HANGMAN MODE
     if (gameMode === 'hangman') {
         return <HangmanMode
+            key={currentIndex}
             currentTerm={currentTerm}
             onCorrect={handleCorrectAnswer}
             onIncorrect={handleIncorrectAnswer}
             onNext={handleNextQuestion}
-            GameHeader={GameHeader}
+            Header={GameHeader}
             ProgressBar={ProgressBar}
             ScoreDisplay={ScoreDisplay}
         />;
@@ -272,11 +268,12 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
     // FILL IN BLANKS MODE
     if (gameMode === 'fillblanks') {
         return <FillBlanksMode
+            key={currentIndex}
             currentTerm={currentTerm}
             onCorrect={handleCorrectAnswer}
             onIncorrect={handleIncorrectAnswer}
             onNext={handleNextQuestion}
-            GameHeader={GameHeader}
+            Header={GameHeader}
             ProgressBar={ProgressBar}
             ScoreDisplay={ScoreDisplay}
         />;
@@ -285,11 +282,12 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
     // SCRAMBLE MODE
     if (gameMode === 'scramble') {
         return <ScrambleMode
+            key={currentIndex}
             currentTerm={currentTerm}
             onCorrect={handleCorrectAnswer}
             onIncorrect={handleIncorrectAnswer}
             onNext={handleNextQuestion}
-            GameHeader={GameHeader}
+            Header={GameHeader}
             ProgressBar={ProgressBar}
             ScoreDisplay={ScoreDisplay}
         />;
@@ -301,7 +299,7 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
             terms={terms}
             onCorrect={handleCorrectAnswer}
             onComplete={() => setIsComplete(true)}
-            GameHeader={GameHeader}
+            Header={GameHeader}
             score={score}
         />;
     }
@@ -313,7 +311,7 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
             onCorrect={handleCorrectAnswer}
             onIncorrect={handleIncorrectAnswer}
             onComplete={() => setIsComplete(true)}
-            GameHeader={GameHeader}
+            Header={GameHeader}
             score={score}
         />;
     }
@@ -325,28 +323,72 @@ export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
             onCorrect={handleCorrectAnswer}
             onIncorrect={handleIncorrectAnswer}
             onComplete={() => setIsComplete(true)}
-            GameHeader={GameHeader}
-            score={score}
-            setScore={setScore}
+            Header={GameHeader}
         />;
     }
 
     return <div>Loading...</div>;
 }
 
+// Reusable Dropdown Button Component
+function DropdownButton({ type, value, options, color, isOpen, onToggle, onSelect }) {
+    return (
+        <div style={{ position: 'relative' }}>
+            <button
+                onClick={onToggle}
+                style={{
+                    background: value ? '#0d9488' : color,
+                    color: 'white',
+                    padding: '0.75rem 1.25rem',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    minWidth: '120px',
+                    justifyContent: 'space-between'
+                }}
+            >
+                <span>{value || type.charAt(0).toUpperCase() + type.slice(1)}</span>
+                <span>▼</span>
+            </button>
+            {isOpen && (
+                <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    marginTop: '0.5rem',
+                    background: '#1e293b',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+                    minWidth: '180px',
+                    maxHeight: '250px',
+                    overflowY: 'auto',
+                    zIndex: 100
+                }}>
+                    <button onClick={() => onSelect(null)} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#64748b', background: 'transparent', fontStyle: 'italic' }}>
+                        (none)
+                    </button>
+                    {options.map(opt => (
+                        <button key={opt.id} onClick={() => onSelect(opt.value)} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#e2e8f0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <strong>{type === 'suffix' ? '-' : ''}{opt.value}{type === 'prefix' ? '-' : ''}</strong>
+                            <span style={{ color: '#64748b', marginLeft: '0.5rem', fontSize: '0.85rem' }}>({opt.meaning})</span>
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ============ BUILDER MODE ============
-function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, ProgressBar, ScoreDisplay, feedback, setFeedback, onXpGain }) {
+function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, Header, ProgressBar, ScoreDisplay, feedback, setFeedback }) {
     const [selectedPrefix, setSelectedPrefix] = useState(null);
     const [selectedRoot, setSelectedRoot] = useState(null);
     const [selectedSuffix, setSelectedSuffix] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(null);
 
-    useEffect(() => {
-        setSelectedPrefix(null);
-        setSelectedRoot(null);
-        setSelectedSuffix(null);
-        setOpenDropdown(null);
-    }, [currentTerm]);
+    // Initial state reset handled by key={currentIndex} in parent
 
     if (!currentTerm) return <div>Loading...</div>;
 
@@ -370,67 +412,16 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
         return combineWordParts(selectedPrefix, selectedRoot, selectedSuffix);
     };
 
-    const DropdownButton = ({ type, value, options, color }) => (
-        <div style={{ position: 'relative' }}>
-            <button
-                onClick={() => setOpenDropdown(openDropdown === type ? null : type)}
-                style={{
-                    background: value ? '#0d9488' : color,
-                    color: 'white',
-                    padding: '0.75rem 1.25rem',
-                    borderRadius: '8px',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    minWidth: '120px',
-                    justifyContent: 'space-between'
-                }}
-            >
-                <span>{value || type.charAt(0).toUpperCase() + type.slice(1)}</span>
-                <span>▼</span>
-            </button>
-            {openDropdown === type && (
-                <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    marginTop: '0.5rem',
-                    background: '#1e293b',
-                    borderRadius: '8px',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-                    minWidth: '180px',
-                    maxHeight: '250px',
-                    overflowY: 'auto',
-                    zIndex: 100
-                }}>
-                    <button onClick={() => {
-                        if (type === 'prefix') setSelectedPrefix(null);
-                        else if (type === 'root') setSelectedRoot(null);
-                        else setSelectedSuffix(null);
-                        setOpenDropdown(null);
-                    }} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#64748b', background: 'transparent', fontStyle: 'italic' }}>
-                        (none)
-                    </button>
-                    {options.map(opt => (
-                        <button key={opt.id} onClick={() => {
-                            if (type === 'prefix') setSelectedPrefix(opt.value);
-                            else if (type === 'root') setSelectedRoot(opt.value);
-                            else setSelectedSuffix(opt.value);
-                            setOpenDropdown(null);
-                        }} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#e2e8f0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                            <strong>{type === 'suffix' ? '-' : ''}{opt.value}{type === 'prefix' ? '-' : ''}</strong>
-                            <span style={{ color: '#64748b', marginLeft: '0.5rem', fontSize: '0.85rem' }}>({opt.meaning})</span>
-                        </button>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+    const handleSelect = (type, val) => {
+        if (type === 'prefix') setSelectedPrefix(val);
+        else if (type === 'root') setSelectedRoot(val);
+        else setSelectedSuffix(val);
+        setOpenDropdown(null);
+    };
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <GameHeader />
+            <Header />
             <ProgressBar />
             <div style={{ background: 'rgba(30,27,50,0.6)', borderRadius: '0 0 12px 12px', padding: '2rem' }}>
                 <ScoreDisplay />
@@ -443,9 +434,33 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                     <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: buildPreview() === '...' ? '#64748b' : '#0d9488', fontFamily: 'monospace' }}>{buildPreview()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-                    <DropdownButton type="prefix" value={selectedPrefix} options={WORD_PARTS.prefixes} color="#f97316" />
-                    <DropdownButton type="root" value={selectedRoot} options={WORD_PARTS.roots} color="#0891b2" />
-                    <DropdownButton type="suffix" value={selectedSuffix} options={WORD_PARTS.suffixes} color="#8b5cf6" />
+                    <DropdownButton
+                        type="prefix"
+                        value={selectedPrefix}
+                        options={WORD_PARTS.prefixes}
+                        color="#f97316"
+                        isOpen={openDropdown === 'prefix'}
+                        onToggle={() => setOpenDropdown(openDropdown === 'prefix' ? null : 'prefix')}
+                        onSelect={(val) => handleSelect('prefix', val)}
+                    />
+                    <DropdownButton
+                        type="root"
+                        value={selectedRoot}
+                        options={WORD_PARTS.roots}
+                        color="#0891b2"
+                        isOpen={openDropdown === 'root'}
+                        onToggle={() => setOpenDropdown(openDropdown === 'root' ? null : 'root')}
+                        onSelect={(val) => handleSelect('root', val)}
+                    />
+                    <DropdownButton
+                        type="suffix"
+                        value={selectedSuffix}
+                        options={WORD_PARTS.suffixes}
+                        color="#8b5cf6"
+                        isOpen={openDropdown === 'suffix'}
+                        onToggle={() => setOpenDropdown(openDropdown === 'suffix' ? null : 'suffix')}
+                        onSelect={(val) => handleSelect('suffix', val)}
+                    />
                 </div>
                 {feedback && (
                     <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', border: `1px solid ${feedback.type === 'correct' ? '#22c55e' : '#ef4444'}` }}>
@@ -464,31 +479,27 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
 }
 
 // ============ HANGMAN MODE ============
-function HangmanMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, ProgressBar, ScoreDisplay }) {
+function HangmanMode({ currentTerm, onCorrect, onIncorrect, onNext, Header, ProgressBar, ScoreDisplay }) {
     const [guessedLetters, setGuessedLetters] = useState([]);
     const [wrongGuesses, setWrongGuesses] = useState(0);
     const [gameState, setGameState] = useState('playing'); // 'playing', 'won', 'lost'
     const maxWrong = 6;
 
-    // Calculate these BEFORE the conditional useEffect
+    // Initial state reset handled by key={currentIndex} in parent
+
+    // Calculate these
     const word = currentTerm?.builtTerm?.toLowerCase() || '';
     const isWon = word && word.split('').every(letter => guessedLetters.includes(letter));
     const isLost = wrongGuesses >= maxWrong;
 
     useEffect(() => {
-        setGuessedLetters([]);
-        setWrongGuesses(0);
-        setGameState('playing');
-    }, [currentTerm]);
-
-    useEffect(() => {
         if (!currentTerm) return; // Guard inside effect
         if (isWon && gameState === 'playing') {
-            setGameState('won');
+            setTimeout(() => setGameState('won'), 0);
             onCorrect();
             setTimeout(onNext, 2000);
         } else if (isLost && gameState === 'playing') {
-            setGameState('lost');
+            setTimeout(() => setGameState('lost'), 0);
             onIncorrect();
             setTimeout(onNext, 2000);
         }
@@ -512,7 +523,7 @@ function HangmanMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <GameHeader />
+            <Header />
             <ProgressBar />
             <div style={{ background: 'rgba(30,27,50,0.6)', borderRadius: '0 0 12px 12px', padding: '2rem' }}>
                 <ScoreDisplay />
@@ -570,21 +581,19 @@ function HangmanMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
 }
 
 // ============ FILL IN BLANKS MODE ============
-function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, ProgressBar, ScoreDisplay }) {
+function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, Header, ProgressBar, ScoreDisplay }) {
     const [userInput, setUserInput] = useState('');
     const [feedback, setFeedback] = useState(null);
-    const [blankType, setBlankType] = useState('prefix');
-
-    useEffect(() => {
-        setUserInput('');
-        setFeedback(null);
-        // Randomly decide what to blank out
+    const [blankType] = useState(() => {
+        if (!currentTerm) return 'root';
         const types = [];
         if (currentTerm?.answer.prefix) types.push('prefix');
         if (currentTerm?.answer.root) types.push('root');
         if (currentTerm?.answer.suffix) types.push('suffix');
-        setBlankType(types[Math.floor(Math.random() * types.length)] || 'root');
-    }, [currentTerm]);
+        return types[Math.floor(Math.random() * types.length)] || 'root';
+    });
+
+    // Initial state reset handled by key={currentIndex} in parent
 
     if (!currentTerm) return <div>Loading...</div>;
 
@@ -613,7 +622,7 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <GameHeader />
+            <Header />
             <ProgressBar />
             <div style={{ background: 'rgba(30,27,50,0.6)', borderRadius: '0 0 12px 12px', padding: '2rem' }}>
                 <ScoreDisplay />
@@ -662,23 +671,20 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
 }
 
 // ============ SCRAMBLE MODE ============
-function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, ProgressBar, ScoreDisplay }) {
+function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, Header, ProgressBar, ScoreDisplay }) {
     const [userInput, setUserInput] = useState('');
     const [feedback, setFeedback] = useState(null);
-    const [scrambled, setScrambled] = useState('');
-
-    useEffect(() => {
-        setUserInput('');
-        setFeedback(null);
-        if (currentTerm) {
-            const letters = currentTerm.builtTerm.split('');
-            for (let i = letters.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [letters[i], letters[j]] = [letters[j], letters[i]];
-            }
-            setScrambled(letters.join('').toUpperCase());
+    const [scrambled] = useState(() => {
+        if (!currentTerm) return '';
+        const letters = currentTerm.builtTerm.split('');
+        for (let i = letters.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [letters[i], letters[j]] = [letters[j], letters[i]];
         }
-    }, [currentTerm]);
+        return letters.join('').toUpperCase();
+    });
+
+    // Initial state reset handled by key={currentIndex} in parent
 
     if (!currentTerm) return <div>Loading...</div>;
 
@@ -697,7 +703,7 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <GameHeader />
+            <Header />
             <ProgressBar />
             <div style={{ background: 'rgba(30,27,50,0.6)', borderRadius: '0 0 12px 12px', padding: '2rem' }}>
                 <ScoreDisplay />
@@ -760,7 +766,7 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
 }
 
 // ============ MATCH MODE ============
-function MatchMode({ terms, onCorrect, onComplete, GameHeader, score }) {
+function MatchMode({ terms, onCorrect, onComplete, Header, score }) {
     const [selectedTerm, setSelectedTerm] = useState(null);
     const [matchedPairs, setMatchedPairs] = useState([]);
     const [wrongMatch, setWrongMatch] = useState(null);
@@ -790,7 +796,7 @@ function MatchMode({ terms, onCorrect, onComplete, GameHeader, score }) {
 
     return (
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-            <GameHeader />
+            <Header />
             <div style={{ background: 'rgba(30,27,50,0.6)', borderRadius: '0 0 12px 12px', padding: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', color: '#94a3b8' }}>
                     <span>Matched: {matchedPairs.length} / {terms.length}</span>
@@ -851,7 +857,7 @@ function MatchMode({ terms, onCorrect, onComplete, GameHeader, score }) {
 }
 
 // ============ SPEED MODE ============
-function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, score }) {
+function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, Header, score }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [timeLeft, setTimeLeft] = useState(60);
     const [userInput, setUserInput] = useState('');
@@ -866,11 +872,18 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
         if (timeLeft > 0 && !isGameOver) {
             const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
             return () => clearTimeout(timer);
-        } else if (timeLeft === 0) {
-            setIsGameOver(true);
-            setTimeout(onComplete, 1500);
         }
     }, [timeLeft, isGameOver]);
+
+    useEffect(() => {
+        if (timeLeft === 0 && !isGameOver) {
+            // Avoid synchronous set state during effect for existing render cycle
+            setTimeout(() => {
+                setIsGameOver(true);
+                setTimeout(onComplete, 1500);
+            }, 0);
+        }
+    }, [timeLeft, isGameOver, onComplete]);
 
     const handleSubmit = () => {
         if (!terms[currentIndex]) return;
@@ -895,7 +908,7 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <GameHeader />
+            <Header />
             <div style={{ background: 'rgba(30,27,50,0.6)', borderRadius: '0 0 12px 12px', padding: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <span style={{ color: '#94a3b8' }}>Term {currentIndex + 1} / {terms.length}</span>
@@ -951,7 +964,7 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
 }
 
 // ============ JEOPARDY MODE ============
-function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, score, setScore }) {
+function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, Header }) {
     const [selectedQuestion, setSelectedQuestion] = useState(null);
     const [answeredQuestions, setAnsweredQuestions] = useState([]);
     const [userInput, setUserInput] = useState('');
@@ -1008,7 +1021,7 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
 
     return (
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-            <GameHeader />
+            <Header />
             <div style={{ background: 'rgba(30,27,50,0.6)', borderRadius: '0 0 12px 12px', padding: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: '#94a3b8' }}>
                     <span>Answer in question form: "What is...?"</span>
