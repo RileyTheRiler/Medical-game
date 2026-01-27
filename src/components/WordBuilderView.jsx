@@ -373,6 +373,9 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
     const DropdownButton = ({ type, value, options, color }) => (
         <div style={{ position: 'relative' }}>
             <button
+                aria-haspopup="listbox"
+                aria-expanded={openDropdown === type}
+                aria-label={`Select ${type}`}
                 onClick={() => setOpenDropdown(openDropdown === type ? null : type)}
                 style={{
                     background: value ? '#0d9488' : color,
@@ -391,34 +394,48 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                 <span>▼</span>
             </button>
             {openDropdown === type && (
-                <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    marginTop: '0.5rem',
-                    background: '#1e293b',
-                    borderRadius: '8px',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-                    minWidth: '180px',
-                    maxHeight: '250px',
-                    overflowY: 'auto',
-                    zIndex: 100
-                }}>
-                    <button onClick={() => {
-                        if (type === 'prefix') setSelectedPrefix(null);
-                        else if (type === 'root') setSelectedRoot(null);
-                        else setSelectedSuffix(null);
-                        setOpenDropdown(null);
-                    }} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#64748b', background: 'transparent', fontStyle: 'italic' }}>
+                <div
+                    role="listbox"
+                    style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        marginTop: '0.5rem',
+                        background: '#1e293b',
+                        borderRadius: '8px',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+                        minWidth: '180px',
+                        maxHeight: '250px',
+                        overflowY: 'auto',
+                        zIndex: 100
+                    }}
+                >
+                    <button
+                        role="option"
+                        aria-selected={value === null}
+                        onClick={() => {
+                            if (type === 'prefix') setSelectedPrefix(null);
+                            else if (type === 'root') setSelectedRoot(null);
+                            else setSelectedSuffix(null);
+                            setOpenDropdown(null);
+                        }}
+                        style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#64748b', background: 'transparent', fontStyle: 'italic' }}
+                    >
                         (none)
                     </button>
                     {options.map(opt => (
-                        <button key={opt.id} onClick={() => {
-                            if (type === 'prefix') setSelectedPrefix(opt.value);
-                            else if (type === 'root') setSelectedRoot(opt.value);
-                            else setSelectedSuffix(opt.value);
-                            setOpenDropdown(null);
-                        }} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#e2e8f0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <button
+                            key={opt.id}
+                            role="option"
+                            aria-selected={value === opt.value}
+                            onClick={() => {
+                                if (type === 'prefix') setSelectedPrefix(opt.value);
+                                else if (type === 'root') setSelectedRoot(opt.value);
+                                else setSelectedSuffix(opt.value);
+                                setOpenDropdown(null);
+                            }}
+                            style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#e2e8f0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                        >
                             <strong>{type === 'suffix' ? '-' : ''}{opt.value}{type === 'prefix' ? '-' : ''}</strong>
                             <span style={{ color: '#64748b', marginLeft: '0.5rem', fontSize: '0.85rem' }}>({opt.meaning})</span>
                         </button>
@@ -448,7 +465,7 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                     <DropdownButton type="suffix" value={selectedSuffix} options={WORD_PARTS.suffixes} color="#8b5cf6" />
                 </div>
                 {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', border: `1px solid ${feedback.type === 'correct' ? '#22c55e' : '#ef4444'}` }}>
+                    <div role="alert" style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', border: `1px solid ${feedback.type === 'correct' ? '#22c55e' : '#ef4444'}` }}>
                         <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
                         <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
                     </div>
