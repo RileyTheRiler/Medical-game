@@ -626,8 +626,11 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                     <div style={{ fontSize: '2rem', fontFamily: 'monospace', color: '#e2e8f0' }}>{getDisplayTerm()}</div>
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    {/* Security: Limit input length to prevent DoS */}
                     <input
                         type="text"
+                        maxLength={50}
+                        autoComplete="off"
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
@@ -724,8 +727,11 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                     </div>
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    {/* Security: Limit input length to prevent DoS */}
                     <input
                         type="text"
+                        maxLength={50}
+                        autoComplete="off"
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
@@ -916,9 +922,12 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
                             <h2 style={{ fontSize: '1.5rem', color: 'white' }}>{currentTerm.definition}</h2>
                         </div>
                         <div style={{ textAlign: 'center' }}>
+                            {/* Security: Limit input length to prevent DoS */}
                             <input
                                 ref={inputRef}
                                 type="text"
+                                maxLength={50}
+                                autoComplete="off"
                                 value={userInput}
                                 onChange={(e) => setUserInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -1075,8 +1084,11 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
 
                         {!feedback && (
                             <div>
+                                {/* Security: Limit input length to prevent DoS */}
                                 <input
                                     type="text"
+                                    maxLength={50}
+                                    autoComplete="off"
                                     value={userInput}
                                     onChange={(e) => setUserInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
