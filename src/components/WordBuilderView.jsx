@@ -632,6 +632,8 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder={`Enter the ${blankType}...`}
+                        maxLength={50}
+                        autoComplete="off"
                         disabled={!!feedback}
                         style={{
                             background: 'rgba(255,255,255,0.1)',
@@ -730,6 +732,8 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder="Type the medical term..."
+                        maxLength={50}
+                        autoComplete="off"
                         disabled={!!feedback}
                         style={{
                             background: 'rgba(255,255,255,0.1)',
@@ -923,6 +927,8 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
                                 onChange={(e) => setUserInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                 placeholder="Type fast!"
+                                maxLength={50}
+                                autoComplete="off"
                                 style={{
                                     background: 'rgba(255,255,255,0.1)',
                                     border: '2px solid #f97316',
@@ -1081,6 +1087,8 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                                     onChange={(e) => setUserInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                     placeholder='What is...?'
+                                    maxLength={50}
+                                    autoComplete="off"
                                     autoFocus
                                     style={{
                                         background: 'rgba(255,255,255,0.1)',
