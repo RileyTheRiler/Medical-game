@@ -374,6 +374,9 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
         <div style={{ position: 'relative' }}>
             <button
                 onClick={() => setOpenDropdown(openDropdown === type ? null : type)}
+                aria-haspopup="listbox"
+                aria-expanded={openDropdown === type}
+                aria-controls={`dropdown-${type}`}
                 style={{
                     background: value ? '#0d9488' : color,
                     color: 'white',
@@ -388,37 +391,53 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                 }}
             >
                 <span>{value || type.charAt(0).toUpperCase() + type.slice(1)}</span>
-                <span>▼</span>
+                <span aria-hidden="true">▼</span>
             </button>
             {openDropdown === type && (
-                <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    marginTop: '0.5rem',
-                    background: '#1e293b',
-                    borderRadius: '8px',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-                    minWidth: '180px',
-                    maxHeight: '250px',
-                    overflowY: 'auto',
-                    zIndex: 100
-                }}>
-                    <button onClick={() => {
-                        if (type === 'prefix') setSelectedPrefix(null);
-                        else if (type === 'root') setSelectedRoot(null);
-                        else setSelectedSuffix(null);
-                        setOpenDropdown(null);
-                    }} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#64748b', background: 'transparent', fontStyle: 'italic' }}>
+                <div
+                    id={`dropdown-${type}`}
+                    role="listbox"
+                    aria-label={`${type} options`}
+                    style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        marginTop: '0.5rem',
+                        background: '#1e293b',
+                        borderRadius: '8px',
+                        boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+                        minWidth: '180px',
+                        maxHeight: '250px',
+                        overflowY: 'auto',
+                        zIndex: 100
+                    }}
+                >
+                    <button
+                        role="option"
+                        aria-selected={value === null}
+                        onClick={() => {
+                            if (type === 'prefix') setSelectedPrefix(null);
+                            else if (type === 'root') setSelectedRoot(null);
+                            else setSelectedSuffix(null);
+                            setOpenDropdown(null);
+                        }}
+                        style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#64748b', background: 'transparent', fontStyle: 'italic' }}
+                    >
                         (none)
                     </button>
                     {options.map(opt => (
-                        <button key={opt.id} onClick={() => {
-                            if (type === 'prefix') setSelectedPrefix(opt.value);
-                            else if (type === 'root') setSelectedRoot(opt.value);
-                            else setSelectedSuffix(opt.value);
-                            setOpenDropdown(null);
-                        }} style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#e2e8f0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <button
+                            key={opt.id}
+                            role="option"
+                            aria-selected={value === opt.value}
+                            onClick={() => {
+                                if (type === 'prefix') setSelectedPrefix(opt.value);
+                                else if (type === 'root') setSelectedRoot(opt.value);
+                                else setSelectedSuffix(opt.value);
+                                setOpenDropdown(null);
+                            }}
+                            style={{ display: 'block', width: '100%', padding: '0.75rem 1rem', textAlign: 'left', color: '#e2e8f0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                        >
                             <strong>{type === 'suffix' ? '-' : ''}{opt.value}{type === 'prefix' ? '-' : ''}</strong>
                             <span style={{ color: '#64748b', marginLeft: '0.5rem', fontSize: '0.85rem' }}>({opt.meaning})</span>
                         </button>
