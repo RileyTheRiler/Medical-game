@@ -1,18 +1,21 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, Suspense, lazy } from 'react';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
 import TitleScreen from './components/TitleScreen';
-import MenuScreen from './components/MenuScreen';
-import GameScreen from './components/GameScreen';
-import CompleteScreen from './components/CompleteScreen';
-import FlashcardView from './components/FlashcardView';
-import EMCalculatorView from './components/EMCalculatorView';
-import WordBuilderView from './components/WordBuilderView';
 import { CHAPTERS } from './data/chapters';
 import { SCENARIOS } from './data/scenarios';
 import { BOSSES } from './data/bosses';
 import { DAILY_RULES } from './data/claims';
 import { FLASHCARD_DECKS } from './data/flashcards';
+
+// ⚡ Bolt Optimization: Lazy load heavy screens to improve initial load time (LCP).
+// This reduces the main bundle size significantly by splitting these components into separate chunks.
+const MenuScreen = lazy(() => import('./components/MenuScreen'));
+const GameScreen = lazy(() => import('./components/GameScreen'));
+const CompleteScreen = lazy(() => import('./components/CompleteScreen'));
+const FlashcardView = lazy(() => import('./components/FlashcardView'));
+const EMCalculatorView = lazy(() => import('./components/EMCalculatorView'));
+const WordBuilderView = lazy(() => import('./components/WordBuilderView'));
 
 // Stable constant for modifier matching chapter config
 const MODIFIER_MATCHING_CHAPTER = {
@@ -189,73 +192,86 @@ function App() {
         <TitleScreen onStart={handleStart} stats={stats} />
       )}
 
-      {screen === 'menu' && (
-        <MenuScreen
-          stats={stats}
-          onSelectChapter={handleChapterSelect}
-          onSelectScenario={handleScenarioSelect}
-          onSelectBoss={handleBossSelect}
-          onSelectClaimsDay={handleClaimsDaySelect}
-          onSelectFlashcardDeck={handleFlashcardDeckSelect}
-          onSelectCalculator={handleCalculatorSelect}
-          onSelectModifierMatching={handleModifierMatchingSelect}
-          onSelectWordBuilder={handleWordBuilderSelect}
-        />
-      )}
+      <Suspense fallback={
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          color: '#666',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}>
+          Loading...
+        </div>
+      }>
+        {screen === 'menu' && (
+          <MenuScreen
+            stats={stats}
+            onSelectChapter={handleChapterSelect}
+            onSelectScenario={handleScenarioSelect}
+            onSelectBoss={handleBossSelect}
+            onSelectClaimsDay={handleClaimsDaySelect}
+            onSelectFlashcardDeck={handleFlashcardDeckSelect}
+            onSelectCalculator={handleCalculatorSelect}
+            onSelectModifierMatching={handleModifierMatchingSelect}
+            onSelectWordBuilder={handleWordBuilderSelect}
+          />
+        )}
 
-      {screen === 'game' && activeChapterId === 'modifierMatching' && (
-        <GameScreen
-          key="modifierMatching"
-          chapter={MODIFIER_MATCHING_CHAPTER}
-          initialMode="modifierMatching"
-          onMenu={handleMenu}
-          onComplete={handleMenu}
-          onXpGain={addXp}
-          onAnswerRecord={recordAnswer}
-        />
-      )}
+        {screen === 'game' && activeChapterId === 'modifierMatching' && (
+          <GameScreen
+            key="modifierMatching"
+            chapter={MODIFIER_MATCHING_CHAPTER}
+            initialMode="modifierMatching"
+            onMenu={handleMenu}
+            onComplete={handleMenu}
+            onXpGain={addXp}
+            onAnswerRecord={recordAnswer}
+          />
+        )}
 
-      {screen === 'game' && activeContent && (
-        <GameScreen
-          key={`${activeContent.id ?? activeContent.day}-${initialMode}`}
-          chapter={activeContent} // Acts as the config object
-          initialMode={initialMode}
-          onMenu={handleMenu}
-          onComplete={onCompleteHandler}
-          onXpGain={addXp}
-          onAnswerRecord={recordAnswer}
-        />
-      )}
+        {screen === 'game' && activeContent && (
+          <GameScreen
+            key={`${activeContent.id ?? activeContent.day}-${initialMode}`}
+            chapter={activeContent} // Acts as the config object
+            initialMode={initialMode}
+            onMenu={handleMenu}
+            onComplete={onCompleteHandler}
+            onXpGain={addXp}
+            onAnswerRecord={recordAnswer}
+          />
+        )}
 
-      {screen === 'complete' && activeContent && (
-        <CompleteScreen
-          chapter={activeContent}
-          stats={stats}
-          onMenu={handleMenu}
-          onNext={handleNextChapter}
-        />
-      )}
+        {screen === 'complete' && activeContent && (
+          <CompleteScreen
+            chapter={activeContent}
+            stats={stats}
+            onMenu={handleMenu}
+            onNext={handleNextChapter}
+          />
+        )}
 
-      {screen === 'flashcard' && activeDeck && (
-        <FlashcardView
-          deck={activeDeck}
-          onMenu={handleMenu}
-        />
-      )}
+        {screen === 'flashcard' && activeDeck && (
+          <FlashcardView
+            deck={activeDeck}
+            onMenu={handleMenu}
+          />
+        )}
 
-      {screen === 'calculator' && (
-        <EMCalculatorView
-          onMenu={handleMenu}
-        />
-      )}
+        {screen === 'calculator' && (
+          <EMCalculatorView
+            onMenu={handleMenu}
+          />
+        )}
 
-      {screen === 'wordBuilder' && (
-        <WordBuilderView
-          onMenu={handleMenu}
-          onComplete={handleMenu}
-          onXpGain={addXp}
-        />
-      )}
+        {screen === 'wordBuilder' && (
+          <WordBuilderView
+            onMenu={handleMenu}
+            onComplete={handleMenu}
+            onXpGain={addXp}
+          />
+        )}
+      </Suspense>
     </>
   );
 }
