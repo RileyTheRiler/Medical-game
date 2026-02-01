@@ -626,6 +626,7 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                     <div style={{ fontSize: '2rem', fontFamily: 'monospace', color: '#e2e8f0' }}>{getDisplayTerm()}</div>
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    {/* Security: maxLength prevents DoS/buffer issues, autoComplete off prevents sensitive data leakage */}
                     <input
                         type="text"
                         value={userInput}
@@ -633,6 +634,8 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder={`Enter the ${blankType}...`}
                         disabled={!!feedback}
+                        maxLength={50}
+                        autoComplete="off"
                         style={{
                             background: 'rgba(255,255,255,0.1)',
                             border: '2px solid #0d9488',
@@ -731,6 +734,8 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder="Type the medical term..."
                         disabled={!!feedback}
+                        maxLength={60}
+                        autoComplete="off"
                         style={{
                             background: 'rgba(255,255,255,0.1)',
                             border: '2px solid #0d9488',
@@ -923,6 +928,8 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
                                 onChange={(e) => setUserInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                 placeholder="Type fast!"
+                                maxLength={60}
+                                autoComplete="off"
                                 style={{
                                     background: 'rgba(255,255,255,0.1)',
                                     border: '2px solid #f97316',
@@ -1082,6 +1089,8 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                     placeholder='What is...?'
                                     autoFocus
+                                    maxLength={100}
+                                    autoComplete="off"
                                     style={{
                                         background: 'rgba(255,255,255,0.1)',
                                         border: '2px solid #1e40af',
