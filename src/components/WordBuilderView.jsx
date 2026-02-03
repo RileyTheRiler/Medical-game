@@ -1,6 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { WORD_PARTS, WORD_BUILDER_TERMS, getRandomTerms, getCategories, combineWordParts } from '../data/wordBuilder';
 
+const FeedbackMessage = ({ type, message }) => (
+    <div
+        role="alert"
+        aria-live="assertive"
+        style={{
+            textAlign: 'center',
+            padding: '1rem',
+            marginBottom: '1rem',
+            borderRadius: '12px',
+            background: type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+            border: `1px solid ${type === 'correct' ? '#22c55e' : '#ef4444'}`
+        }}
+    >
+        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{type === 'correct' ? '✅' : '❌'}</span>
+        <span style={{ color: type === 'correct' ? '#4ade80' : '#fca5a5' }}>{message}</span>
+    </div>
+);
+
 // Game mode constants
 const GAME_MODES = [
     { id: 'builder', name: 'Word Builder', icon: '🔤', description: 'Combine prefixes, roots, and suffixes' },
@@ -447,12 +465,7 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                     <DropdownButton type="root" value={selectedRoot} options={WORD_PARTS.roots} color="#0891b2" />
                     <DropdownButton type="suffix" value={selectedSuffix} options={WORD_PARTS.suffixes} color="#8b5cf6" />
                 </div>
-                {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', border: `1px solid ${feedback.type === 'correct' ? '#22c55e' : '#ef4444'}` }}>
-                        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
-                        <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
-                    </div>
-                )}
+                {feedback && <FeedbackMessage type={feedback.type} message={feedback.message} />}
                 <div style={{ textAlign: 'center' }}>
                     <button onClick={handleSubmit} disabled={!selectedRoot || feedback} style={{ background: (!selectedRoot || feedback) ? '#475569' : 'linear-gradient(135deg, #0d9488, #0891b2)', color: 'white', padding: '1rem 3rem', borderRadius: '12px', fontWeight: 'bold', fontSize: '1.1rem', cursor: (!selectedRoot || feedback) ? 'not-allowed' : 'pointer' }}>
                         ➤ SUBMIT
@@ -645,12 +658,7 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                         }}
                     />
                 </div>
-                {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
-                        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
-                        <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
-                    </div>
-                )}
+                {feedback && <FeedbackMessage type={feedback.type} message={feedback.message} />}
                 <div style={{ textAlign: 'center' }}>
                     <button onClick={handleSubmit} disabled={!userInput.trim() || feedback} style={{ background: (!userInput.trim() || feedback) ? '#475569' : 'linear-gradient(135deg, #0d9488, #0891b2)', color: 'white', padding: '1rem 3rem', borderRadius: '12px', fontWeight: 'bold', cursor: (!userInput.trim() || feedback) ? 'not-allowed' : 'pointer' }}>
                         ➤ SUBMIT
@@ -743,12 +751,7 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                         }}
                     />
                 </div>
-                {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
-                        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
-                        <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
-                    </div>
-                )}
+                {feedback && <FeedbackMessage type={feedback.type} message={feedback.message} />}
                 <div style={{ textAlign: 'center' }}>
                     <button onClick={handleSubmit} disabled={!userInput.trim() || feedback} style={{ background: (!userInput.trim() || feedback) ? '#475569' : 'linear-gradient(135deg, #0d9488, #0891b2)', color: 'white', padding: '1rem 3rem', borderRadius: '12px', fontWeight: 'bold', cursor: (!userInput.trim() || feedback) ? 'not-allowed' : 'pointer' }}>
                         ➤ SUBMIT
@@ -1109,11 +1112,15 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                         )}
 
                         {feedback && (
-                            <div style={{
-                                padding: '1.5rem',
-                                borderRadius: '12px',
-                                background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
-                            }}>
+                            <div
+                                role="alert"
+                                aria-live="assertive"
+                                style={{
+                                    padding: '1.5rem',
+                                    borderRadius: '12px',
+                                    background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
+                                }}
+                            >
                                 <span style={{ fontSize: '2rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
                                 <p style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5', marginTop: '0.5rem', fontSize: '1.2rem' }}>
                                     {feedback.message}
