@@ -1,14 +1,15 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, Suspense } from 'react';
 import './App.css';
 import { useGameState } from './hooks/useGameState';
 import TitleScreen from './components/TitleScreen';
-import MenuScreen from './components/MenuScreen';
-import GameScreen from './components/GameScreen';
-import CompleteScreen from './components/CompleteScreen';
-import FlashcardView from './components/FlashcardView';
-import EMCalculatorView from './components/EMCalculatorView';
-import WordBuilderView from './components/WordBuilderView';
 import { CHAPTERS } from './data/chapters';
+
+const MenuScreen = React.lazy(() => import('./components/MenuScreen'));
+const GameScreen = React.lazy(() => import('./components/GameScreen'));
+const CompleteScreen = React.lazy(() => import('./components/CompleteScreen'));
+const FlashcardView = React.lazy(() => import('./components/FlashcardView'));
+const EMCalculatorView = React.lazy(() => import('./components/EMCalculatorView'));
+const WordBuilderView = React.lazy(() => import('./components/WordBuilderView'));
 import { SCENARIOS } from './data/scenarios';
 import { BOSSES } from './data/bosses';
 import { DAILY_RULES } from './data/claims';
@@ -189,73 +190,87 @@ function App() {
         <TitleScreen onStart={handleStart} stats={stats} />
       )}
 
-      {screen === 'menu' && (
-        <MenuScreen
-          stats={stats}
-          onSelectChapter={handleChapterSelect}
-          onSelectScenario={handleScenarioSelect}
-          onSelectBoss={handleBossSelect}
-          onSelectClaimsDay={handleClaimsDaySelect}
-          onSelectFlashcardDeck={handleFlashcardDeckSelect}
-          onSelectCalculator={handleCalculatorSelect}
-          onSelectModifierMatching={handleModifierMatchingSelect}
-          onSelectWordBuilder={handleWordBuilderSelect}
-        />
-      )}
+      <Suspense fallback={
+        <div style={{
+          color: '#94a3b8',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.2rem',
+          letterSpacing: '0.1em'
+        }}>
+          LOADING...
+        </div>
+      }>
+        {screen === 'menu' && (
+          <MenuScreen
+            stats={stats}
+            onSelectChapter={handleChapterSelect}
+            onSelectScenario={handleScenarioSelect}
+            onSelectBoss={handleBossSelect}
+            onSelectClaimsDay={handleClaimsDaySelect}
+            onSelectFlashcardDeck={handleFlashcardDeckSelect}
+            onSelectCalculator={handleCalculatorSelect}
+            onSelectModifierMatching={handleModifierMatchingSelect}
+            onSelectWordBuilder={handleWordBuilderSelect}
+          />
+        )}
 
-      {screen === 'game' && activeChapterId === 'modifierMatching' && (
-        <GameScreen
-          key="modifierMatching"
-          chapter={MODIFIER_MATCHING_CHAPTER}
-          initialMode="modifierMatching"
-          onMenu={handleMenu}
-          onComplete={handleMenu}
-          onXpGain={addXp}
-          onAnswerRecord={recordAnswer}
-        />
-      )}
+        {screen === 'game' && activeChapterId === 'modifierMatching' && (
+          <GameScreen
+            key="modifierMatching"
+            chapter={MODIFIER_MATCHING_CHAPTER}
+            initialMode="modifierMatching"
+            onMenu={handleMenu}
+            onComplete={handleMenu}
+            onXpGain={addXp}
+            onAnswerRecord={recordAnswer}
+          />
+        )}
 
-      {screen === 'game' && activeContent && (
-        <GameScreen
-          key={`${activeContent.id ?? activeContent.day}-${initialMode}`}
-          chapter={activeContent} // Acts as the config object
-          initialMode={initialMode}
-          onMenu={handleMenu}
-          onComplete={onCompleteHandler}
-          onXpGain={addXp}
-          onAnswerRecord={recordAnswer}
-        />
-      )}
+        {screen === 'game' && activeContent && (
+          <GameScreen
+            key={`${activeContent.id ?? activeContent.day}-${initialMode}`}
+            chapter={activeContent} // Acts as the config object
+            initialMode={initialMode}
+            onMenu={handleMenu}
+            onComplete={onCompleteHandler}
+            onXpGain={addXp}
+            onAnswerRecord={recordAnswer}
+          />
+        )}
 
-      {screen === 'complete' && activeContent && (
-        <CompleteScreen
-          chapter={activeContent}
-          stats={stats}
-          onMenu={handleMenu}
-          onNext={handleNextChapter}
-        />
-      )}
+        {screen === 'complete' && activeContent && (
+          <CompleteScreen
+            chapter={activeContent}
+            stats={stats}
+            onMenu={handleMenu}
+            onNext={handleNextChapter}
+          />
+        )}
 
-      {screen === 'flashcard' && activeDeck && (
-        <FlashcardView
-          deck={activeDeck}
-          onMenu={handleMenu}
-        />
-      )}
+        {screen === 'flashcard' && activeDeck && (
+          <FlashcardView
+            deck={activeDeck}
+            onMenu={handleMenu}
+          />
+        )}
 
-      {screen === 'calculator' && (
-        <EMCalculatorView
-          onMenu={handleMenu}
-        />
-      )}
+        {screen === 'calculator' && (
+          <EMCalculatorView
+            onMenu={handleMenu}
+          />
+        )}
 
-      {screen === 'wordBuilder' && (
-        <WordBuilderView
-          onMenu={handleMenu}
-          onComplete={handleMenu}
-          onXpGain={addXp}
-        />
-      )}
+        {screen === 'wordBuilder' && (
+          <WordBuilderView
+            onMenu={handleMenu}
+            onComplete={handleMenu}
+            onXpGain={addXp}
+          />
+        )}
+      </Suspense>
     </>
   );
 }
