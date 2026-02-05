@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 export default function FlashcardView({ deck, onMenu }) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,10 +17,31 @@ export default function FlashcardView({ deck, onMenu }) {
         localStorage.setItem(`flashcards_${deck.id}`, JSON.stringify(learnedCards));
     }, [learnedCards, deck.id]);
 
+    const handleNext = useCallback(() => {
+        setIsFlipped(false);
+        setTimeout(() => {
+            setCurrentIndex(prev => (prev + 1) % deck.cards.length);
+        }, 150);
+    }, [deck.cards.length]);
+
+    const handlePrev = useCallback(() => {
+        setIsFlipped(false);
+        setTimeout(() => {
+            setCurrentIndex(prev => (prev - 1 + deck.cards.length) % deck.cards.length);
+        }, 150);
+    }, [deck.cards.length]);
+
     // Keyboard navigation
     useEffect(() => {
         const handleKeyDown = (e) => {
+            // Ignore Space/Enter if user is interacting with a control
+            if ((e.code === 'Space' || e.code === 'Enter') &&
+                ['BUTTON', 'INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                return;
+            }
+
             if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
                 setIsFlipped(prev => !prev);
             } else if (e.code === 'ArrowRight') {
                 handleNext();
@@ -30,21 +51,7 @@ export default function FlashcardView({ deck, onMenu }) {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [currentIndex]);
-
-    const handleNext = () => {
-        setIsFlipped(false);
-        setTimeout(() => {
-            setCurrentIndex(prev => (prev + 1) % deck.cards.length);
-        }, 150);
-    };
-
-    const handlePrev = () => {
-        setIsFlipped(false);
-        setTimeout(() => {
-            setCurrentIndex(prev => (prev - 1 + deck.cards.length) % deck.cards.length);
-        }, 150);
-    };
+    }, [handleNext, handlePrev]);
 
     const toggleLearned = (e) => {
         e.stopPropagation();
@@ -75,6 +82,8 @@ export default function FlashcardView({ deck, onMenu }) {
             }}>
                 <button
                     onClick={onMenu}
+                    aria-label="Back to Menu"
+                    title="Back to Menu"
                     style={{
                         background: 'transparent',
                         border: 'none',
@@ -244,6 +253,8 @@ export default function FlashcardView({ deck, onMenu }) {
                 }}>
                     <button
                         onClick={handlePrev}
+                        aria-label="Previous card"
+                        title="Previous card (Arrow Left)"
                         style={{
                             background: 'rgba(255,255,255,0.1)',
                             border: 'none',
@@ -263,6 +274,8 @@ export default function FlashcardView({ deck, onMenu }) {
                     </button>
                     <button
                         onClick={handleNext}
+                        aria-label="Next card"
+                        title="Next card (Arrow Right)"
                         style={{
                             background: deck.color,
                             border: 'none',
