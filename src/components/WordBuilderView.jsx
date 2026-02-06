@@ -12,6 +12,24 @@ const GAME_MODES = [
     { id: 'jeopardy', name: 'Jeopardy', icon: '🎮', description: 'Answer in question form' },
 ];
 
+const FeedbackMessage = ({ type, message }) => (
+    <div
+        role="alert"
+        aria-live="assertive"
+        style={{
+            textAlign: 'center',
+            padding: '1rem',
+            marginBottom: '1rem',
+            borderRadius: '12px',
+            background: type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+            border: `1px solid ${type === 'correct' ? '#22c55e' : '#ef4444'}`
+        }}
+    >
+        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{type === 'correct' ? '✅' : '❌'}</span>
+        <span style={{ color: type === 'correct' ? '#4ade80' : '#fca5a5' }}>{message}</span>
+    </div>
+);
+
 export default function WordBuilderView({ onComplete, onMenu, onXpGain }) {
     const [gameMode, setGameMode] = useState(null); // null = mode selection screen
     const [terms, setTerms] = useState([]);
@@ -447,12 +465,7 @@ function BuilderMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader, 
                     <DropdownButton type="root" value={selectedRoot} options={WORD_PARTS.roots} color="#0891b2" />
                     <DropdownButton type="suffix" value={selectedSuffix} options={WORD_PARTS.suffixes} color="#8b5cf6" />
                 </div>
-                {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)', border: `1px solid ${feedback.type === 'correct' ? '#22c55e' : '#ef4444'}` }}>
-                        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
-                        <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
-                    </div>
-                )}
+                {feedback && <FeedbackMessage type={feedback.type} message={feedback.message} />}
                 <div style={{ textAlign: 'center' }}>
                     <button onClick={handleSubmit} disabled={!selectedRoot || feedback} style={{ background: (!selectedRoot || feedback) ? '#475569' : 'linear-gradient(135deg, #0d9488, #0891b2)', color: 'white', padding: '1rem 3rem', borderRadius: '12px', fontWeight: 'bold', fontSize: '1.1rem', cursor: (!selectedRoot || feedback) ? 'not-allowed' : 'pointer' }}>
                         ➤ SUBMIT
@@ -632,6 +645,7 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder={`Enter the ${blankType}...`}
+                        aria-label={`Enter the ${blankType}`}
                         disabled={!!feedback}
                         style={{
                             background: 'rgba(255,255,255,0.1)',
@@ -645,12 +659,7 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                         }}
                     />
                 </div>
-                {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
-                        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
-                        <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
-                    </div>
-                )}
+                {feedback && <FeedbackMessage type={feedback.type} message={feedback.message} />}
                 <div style={{ textAlign: 'center' }}>
                     <button onClick={handleSubmit} disabled={!userInput.trim() || feedback} style={{ background: (!userInput.trim() || feedback) ? '#475569' : 'linear-gradient(135deg, #0d9488, #0891b2)', color: 'white', padding: '1rem 3rem', borderRadius: '12px', fontWeight: 'bold', cursor: (!userInput.trim() || feedback) ? 'not-allowed' : 'pointer' }}>
                         ➤ SUBMIT
@@ -730,6 +739,7 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
                         placeholder="Type the medical term..."
+                        aria-label="Unscrambled term"
                         disabled={!!feedback}
                         style={{
                             background: 'rgba(255,255,255,0.1)',
@@ -743,12 +753,7 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                         }}
                     />
                 </div>
-                {feedback && (
-                    <div style={{ textAlign: 'center', padding: '1rem', marginBottom: '1rem', borderRadius: '12px', background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
-                        <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
-                        <span style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5' }}>{feedback.message}</span>
-                    </div>
-                )}
+                {feedback && <FeedbackMessage type={feedback.type} message={feedback.message} />}
                 <div style={{ textAlign: 'center' }}>
                     <button onClick={handleSubmit} disabled={!userInput.trim() || feedback} style={{ background: (!userInput.trim() || feedback) ? '#475569' : 'linear-gradient(135deg, #0d9488, #0891b2)', color: 'white', padding: '1rem 3rem', borderRadius: '12px', fontWeight: 'bold', cursor: (!userInput.trim() || feedback) ? 'not-allowed' : 'pointer' }}>
                         ➤ SUBMIT
@@ -923,6 +928,7 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
                                 onChange={(e) => setUserInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                 placeholder="Type fast!"
+                                aria-label="Type the medical term"
                                 style={{
                                     background: 'rgba(255,255,255,0.1)',
                                     border: '2px solid #f97316',
@@ -1081,6 +1087,7 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                                     onChange={(e) => setUserInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                                     placeholder='What is...?'
+                                    aria-label="Your answer in question form"
                                     autoFocus
                                     style={{
                                         background: 'rgba(255,255,255,0.1)',
@@ -1108,18 +1115,7 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                             </div>
                         )}
 
-                        {feedback && (
-                            <div style={{
-                                padding: '1.5rem',
-                                borderRadius: '12px',
-                                background: feedback.type === 'correct' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
-                            }}>
-                                <span style={{ fontSize: '2rem' }}>{feedback.type === 'correct' ? '✅' : '❌'}</span>
-                                <p style={{ color: feedback.type === 'correct' ? '#4ade80' : '#fca5a5', marginTop: '0.5rem', fontSize: '1.2rem' }}>
-                                    {feedback.message}
-                                </p>
-                            </div>
-                        )}
+                        {feedback && <FeedbackMessage type={feedback.type} message={feedback.message} />}
                     </div>
                 )}
             </div>
