@@ -628,6 +628,8 @@ function FillBlanksMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeade
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                     <input
                         type="text"
+                        maxLength={50}
+                        autoComplete="off"
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
@@ -726,6 +728,8 @@ function ScrambleMode({ currentTerm, onCorrect, onIncorrect, onNext, GameHeader,
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                     <input
                         type="text"
+                        maxLength={50}
+                        autoComplete="off"
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && !feedback && handleSubmit()}
@@ -919,6 +923,8 @@ function SpeedMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, scor
                             <input
                                 ref={inputRef}
                                 type="text"
+                                maxLength={50}
+                                autoComplete="off"
                                 value={userInput}
                                 onChange={(e) => setUserInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -1077,6 +1083,8 @@ function JeopardyMode({ terms, onCorrect, onIncorrect, onComplete, GameHeader, s
                             <div>
                                 <input
                                     type="text"
+                                    maxLength={50}
+                                    autoComplete="off"
                                     value={userInput}
                                     onChange={(e) => setUserInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
